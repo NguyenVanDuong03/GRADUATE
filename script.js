@@ -201,7 +201,7 @@ $(document).ready(() => {
       },
       {
         question: "GPA của tôi là bao nhiêu?",
-        answers: ["3.5", "3.8", "4.0", "3.2"],
+        answers: ["3.5", "3.8", "4.0", "3.3"],
         correct: 3,
         hint: "Một con số không quá cao nhưng cũng không quá thấp!",
       },
