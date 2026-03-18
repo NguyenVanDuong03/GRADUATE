@@ -9,13 +9,14 @@ $(document).ready(() => {
     duration: 1000,
     once: true,
     offset: 100,
+    disable: 'mobile' // Tắt AOS trên mobile để tăng hiệu suất
   });
 
   // Initialize Particles.js
   if (typeof particlesJS !== "undefined") {
     particlesJS("particles-js", {
       particles: {
-        number: { value: 80, density: { enable: true, value_area: 800 } },
+        number: { value: 50, density: { enable: true, value_area: 800 } }, // Giảm số hạt để tăng hiệu suất
         color: { value: "#fbbf24" },
         shape: { type: "circle" },
         opacity: { value: 0.5, random: false },
@@ -29,7 +30,7 @@ $(document).ready(() => {
         },
         move: {
           enable: true,
-          speed: 6,
+          speed: 4, // Giảm tốc độ di chuyển
           direction: "none",
           random: false,
           straight: false,
@@ -40,7 +41,7 @@ $(document).ready(() => {
       interactivity: {
         detect_on: "canvas",
         events: {
-          onhover: { enable: true, mode: "repulse" },
+          onhover: { enable: false, mode: "repulse" }, // Tắt hover trên mobile
           onclick: { enable: true, mode: "push" },
           resize: true,
         },
@@ -60,34 +61,6 @@ $(document).ready(() => {
       },
       retina_detect: true,
     });
-  }
-
-  // Sound effects
-  let soundEnabled = true;
-  const sounds = {
-    correct: new Audio(
-      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
-    ),
-    incorrect: new Audio(
-      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
-    ),
-    click: new Audio(
-      "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
-    ),
-  };
-
-  // Sound toggle
-  $("#soundToggle").click(function () {
-    soundEnabled = !soundEnabled;
-    $(this).find("i").toggleClass("fa-volume-up fa-volume-mute");
-    playSound("click");
-  });
-
-  function playSound(type) {
-    if (soundEnabled && sounds[type]) {
-      sounds[type].currentTime = 0;
-      sounds[type].play().catch(() => {});
-    }
   }
 
   // Smooth scrolling for navigation links
@@ -307,7 +280,6 @@ $(document).ready(() => {
     $(this).addClass("active");
     currentCategory = $(this).data("category");
     loadRandomQuestion();
-    playSound("click");
   });
 
   // Load random question from current category
@@ -368,13 +340,11 @@ $(document).ready(() => {
       streak++;
       maxStreak = Math.max(maxStreak, streak);
       createConfetti();
-      playSound("correct");
     } else {
       $(this).addClass("incorrect");
       $(`.answer-btn[data-index="${correctIndex}"]`).addClass("correct");
       showNotification("Sai rồi! 😅", "error");
       streak = 0;
-      playSound("incorrect");
     }
 
     updateScore();
@@ -388,7 +358,6 @@ $(document).ready(() => {
   $("#nextQuestion").click(() => {
     $(".answer-btn").removeClass("correct incorrect").prop("disabled", false);
     loadRandomQuestion();
-    playSound("click");
   });
 
   // Hint button
@@ -396,7 +365,6 @@ $(document).ready(() => {
     const hint = quizData[currentCategory][currentQuestionIndex].hint;
     $("#hintText").text(`💡 ${hint}`).slideDown();
     $(this).prop("disabled", true);
-    playSound("click");
   });
 
   // Update score and streak
@@ -424,13 +392,13 @@ $(document).ready(() => {
 
     setTimeout(() => {
       notification.fadeOut(300);
-    }, 1500);
+    }, 6000);
   }
 
   // Troll button functionality
   let trollAttempts = 0;
   $("#congratsBtn").hover(function () {
-    if (trollAttempts < 3) {
+    if (trollAttempts < 3 && window.innerWidth > 576) { // Tắt hiệu ứng trên mobile
       const button = $(this);
       const container = button.parent();
       const containerWidth = container.width();
@@ -470,7 +438,6 @@ $(document).ready(() => {
     if (trollAttempts >= 3) {
       showNotification("Cảm ơn bạn rất nhiều! 🎓💖", "success");
       createConfetti();
-      playSound("correct");
     }
   });
 
@@ -493,7 +460,6 @@ $(document).ready(() => {
       surprises[Math.floor(Math.random() * surprises.length)];
     showNotification(randomSurprise, "success");
     createConfetti();
-    playSound("correct");
   });
 
   // Memory Wall functionality
@@ -508,7 +474,6 @@ $(document).ready(() => {
       addMemoryCard(name, message, color);
       $("#memoryForm")[0].reset();
       showNotification("Cảm ơn lời chúc của bạn! 💖", "success");
-      playSound("correct");
     }
   });
 
@@ -569,8 +534,9 @@ $(document).ready(() => {
       "#f59e0b",
       "#84cc16",
     ];
+    const confettiCount = window.innerWidth <= 576 ? 50 : 100; // Giảm số confetti trên mobile
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < confettiCount; i++) {
       const confettiPiece = $('<div class="confetti-piece"></div>');
       const size = Math.random() * 8 + 4;
       confettiPiece.css({
@@ -592,7 +558,7 @@ $(document).ready(() => {
 
   // Random sparkle effects
   setInterval(() => {
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.3 && window.innerWidth > 576) { // Tắt sparkle trên mobile
       createSparkle();
     }
   }, 3000);
@@ -706,7 +672,7 @@ $(document).ready(() => {
       if (i < text.length) {
         element.text(element.text() + text.charAt(i));
         i++;
-        setTimeout(type, speed);
+        setTimeout(type, window.innerWidth <= 576 ? 50 : 80); // Tăng tốc trên mobile
       }
     }
     type();
@@ -714,7 +680,7 @@ $(document).ready(() => {
 
   // Initialize typing effect after a delay
   setTimeout(() => {
-    typeWriter($(".hero-subtitle"), "Tôi trân trọng kính mời bạn tham dự", 80);
+    typeWriter($(".hero-subtitle"), "Tôi trân trọng kính mời bạn tham dự");
   }, 1000);
 
   // Achievement unlock system
@@ -774,7 +740,6 @@ $(document).ready(() => {
       "success"
     );
     createConfetti();
-    playSound("correct");
   }
 
   // Check achievements after each quiz answer
